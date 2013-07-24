@@ -21,4 +21,5 @@ If you need to send files that are nested you can try to use vanilla curl:
     curl -i -F [parameter] -F [parameter] [url]
 
 Example:
+
     curl -i -F 'user_profile[name]=robo' -F 'user_profile[avatar]=@avatar.png' https://some-cool-api.io/user_profile

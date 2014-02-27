@@ -99,54 +99,81 @@ Add Git Alias'
 Added the following to the ``~/.gitconfig`` file.
 
     [alias]
+      co = checkout
       st = status
+      aa = add --all
       pr = pull-request
       create-branch = !sh -c 'git push origin HEAD:refs/heads/$1 && git fetch origin && git branch --track $1 origin/$1 && cd . && git checkout $1' -
       merge-branch = !git checkout master && git merge @{-1}
       delete-branch = !sh -c 'git push origin :refs/heads/$1 && git remote prune origin && git branch -D $1' -
       rebase-origin = !git fetch origin && git rebase origin/master
       irebase-origin = !git fetch origin && git rebase -i origin/master
+      force-push-branch = !git push -f origin HEAD
+      hard-reset-branch = !sh -c 'git fetch origin && branch=$(git symbolic-ref --short HEAD) && git reset --hard origin/"$branch"' -
 
 Write a feature
 ---------------
 
-Create a local feature branch based off master.
+Create a local feature branch based off master:
 
-    git create-branch <your-initials>-<feature>-<JIRA-id (just number)>
+    git co master
+    git create-branch <your-initials>_<JIRA-ID>_<feature>
 
-Prefix the branch name with your initials and postfix with JIRA ticket number.
+Prefix the branch name with your initials and JIRA ticket number.
 
 Here is an example branch name:
 
-    mo-awesome-feature-123
+    mpo_PRJ123_awesome_feature
 
-Rebase frequently to incorporate upstream changes and resolve conflicts as needed.
+If you are the only one working in the branch then you should follow a rebaise
+and force push workflow. If you are working with someone else in the branch make
+sure you communicate before any rebaising and force pushes.
+
+Rebase frequently to incorporate upstream changes and resolve conflicts as needed:
 
     git rebase-origin
+
+Force push any rebaised changes:
+
+    git force-push-branch
+
+If you are working with someone else and have to pull a forced pushed branch you
+can overwrite your branch with this.
+
+IMPORTANT: This will overwrite any changes not pushed.
+
+    git hard-reset-branch
 
 Commit changes regularly.
 
     git st
-    git commit -av
+    git aa # add all changes. or
+    git add <file> # add single file
+    git commit -v # Use -v to show diff for help remembering everything changed.
 
 Write a [good commit message](http://goo.gl/w11us). Example format:
 
-    Present-tense summary under 50 characters. Add JIRA ticket number at end of summary.
+    [JIRA-ID] Present-tense summary under 50 characters.
 
     * More information about commit (under 72 characters).
     * More information about commit (under 72 characters).
 
 Here is an example commit message:
 
-    Allow users to sign in with username. BVR-123
+    [BVR-123] Allow users to sign in with username.
 
 When feature is complete make sure all tests and reports pass.
 
     rake reports:all
 
-Push your branch.
+Rebase interactively. Squash commits like "Fix whitespace" into one or a
+small number of valuable commit(s). Edit commit messages to reveal intent.
 
-    git push
+    irebase-origin
+
+Force push to origin:
+
+    git force-push-branch
 
 Submit a [GitHub pull request](http://goo.gl/Kmdee).
 
@@ -162,11 +189,13 @@ Review code
 -----------
 
 A team member other than the author reviews the pull request. They follow
-[Code Review](../code-review) guidelines to avoid
-miscommunication.
+[Code Review](../code-review) guidelines to avoid miscommunication.
 
 They make comments and ask questions directly on lines of code in the Github
 web interface or in [Hipchat](http://hipchat.com).
+
+Changes should be made to the same pull request and squished again into a
+single commit or small number of valuable commit(s).
 
 When satisfied, they comment on the pull request `Ready to merge.`
 
@@ -178,21 +207,24 @@ This can be done on Hipchat or by mentioning them in a JIRA comment.
 Merge
 -----
 
-Rebase interactively. Squash commits like "Fix whitespace" into one or a
-small number of valuable commit(s). Edit commit messages to reveal intent.
-
-    git irebase-origin
-
 Run all tests and validate code quality.
 
+    git co branch
+    git pull
     rake reports:all
 
 View a list of new commits. View changed files. Merge branch into master.
 
-    git log origin/master..<branch-name>
+    git log origin/master..HEAD
     git diff --stat origin/master
     git merge-branch
     git push
+
+Only Fast-Forward merges should be done. If the merge is not a Fast-Forward
+cancel the merge (deleting all lines in the commit message will cancel the
+merge). Rebaise with master again and force push the branch to origin. This will
+update the Pull-Request so it is closed properly with the merge and can be track
+later.
 
 Delete your local and remote feature branch.
 

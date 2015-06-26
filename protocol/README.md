@@ -164,7 +164,7 @@ Here is an example commit message:
 
 When feature is complete make sure all tests and reports pass.
 
-    rake reports:all
+    bin/rake
 
 Rebase interactively. Squash commits like "Fix whitespace" into one or a
 small number of valuable commit(s). Edit commit messages to reveal intent.
@@ -207,26 +207,41 @@ This can be done on Hipchat or by mentioning them in a JIRA comment.
 Merge
 -----
 
-Run all tests and validate code quality.
+Checkout the branch and run all tests and validate code quality.
 
     git co branch
     git pull
-    rake reports:all
 
-View a list of new commits. View changed files. Merge branch into master.
+Make sure all commits are squashed into commits a single logical commit and
+rebase with master.
+
+    git irebase-origin
+
+Run all specs on the rebased branch.
+
+    bin/rake
+
+Force push the branch to origin. This will update the Pull-Request so it is
+closed properly with the merge and can be track later.
+
+View a list of new commits. View changed files. Merge branch into master. This
+can also be done by viewing the PR on Github rather then using ``log`` and
+``diff`` like shown below.
 
     git log origin/master..HEAD
     git diff --stat origin/master
     git merge-branch
-    git push
 
 Only Fast-Forward merges should be done. If the merge is not a Fast-Forward
 cancel the merge (deleting all lines in the commit message will cancel the
-merge). Rebaise with master again and force push the branch to origin. This will
+merge). Rebase with master again and force push the branch to origin. This will
 update the Pull-Request so it is closed properly with the merge and can be track
 later.
 
-Delete your local and remote feature branch.
+    git push
+
+Delete your local and remote feature branch. Make sure the branch has been
+cleanly merged to master before doing this! If in doubt skip this step.
 
     git delete-branch <branch-name>
 
